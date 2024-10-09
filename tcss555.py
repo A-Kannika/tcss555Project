@@ -50,9 +50,11 @@ open=\"3.908690526\"
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input_dir", type=is_dir, help="Path to the input directory")
-parser.add_argument("-o", "--output_dir", type=is_dir, help="Path to the output directory")
+parser.add_argument("-o", "--output_dir", type=str, help="Path to the output directory")
 args = parser.parse_args()
 print(args.input_dir)
 print(args.output_dir)
+os.makedirs(args.output_dir)
+is_dir(args.output_dir)
 save_to_XML_file(args.input_dir, args.output_dir)
     
