@@ -13,13 +13,13 @@ def is_dir(path):
         raise argparse.ArgumentTypeError(f"{path} is not a valid directory")
     return path
 
+
 # Generate the output with parsing arguments from the command
 def save_to_XML_file(input_dir, output_dir):
     # Open the profile in the public-test-data
     # Command arguments
     # tcss555 -i /data/public-test-data/ -o ~/output/
-    # this is working command
-    # python3 tcss555_test.py -i data/public-test-data/ -o data/output/
+
     path = os.path.join(input_dir, "profile", "profile.csv")
     with open(path, "r") as in_file:
         reader = csv.DictReader(in_file)
@@ -48,14 +48,20 @@ open=\"3.908690526\"
             # print(f"{userid}.xml saved to", file_path)
 
 
-
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--input_dir", type=is_dir, help="Path to the input directory")
-parser.add_argument("-o", "--output_dir", type=is_dir, help="Path to the output directory")
+parser.add_argument("-i", "--input_dir", type=str, help="Path to the input directory")
+parser.add_argument("-o", "--output_dir", type=str, help="Path to the output directory")
 args = parser.parse_args()
-print(args.input_dir)
-print(args.output_dir)
-save_to_XML_file(args.input_dir, args.output_dir)
-    
 
-    
+# check input path
+# print(args.input_dir)
+input_path = args.input_dir
+if input_path[0] == "/":
+    input_path = input_path[1:]
+
+# create new (output) path directory
+os.makedirs(args.output_dir)
+is_dir(args.output_dir)
+
+# Generate the output
+save_to_XML_file(input_path, args.output_dir)
