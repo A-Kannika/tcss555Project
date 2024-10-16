@@ -20,15 +20,31 @@ from sklearn.metrics import confusion_matrix
 
 
 ##### Main Method #####
-
 def main():
-    # prepare_training_data()
+    prepare_training_data()
     prepare_public_data()
-    # predict_age_NB()
+    # predict_gender_NB()
+    write_predicted_to_table()
+    
+
+##### Write the prediction gender data into the profile.csv in public-test-data
+def write_predicted_to_table():
+    y_gender_predicted = predict_gender_NB()
+    # print(y_gender_predicted)
+    # print(len(y_gender_predicted))
+
+    # Load the profile.csv under data/public-test-data/profile/ file into a DataFrame
+    df = pd.read_csv("../data/public-test-data/profile/profile.csv")
+
+    # Add new data to a specific column, ensuring the length matches the DataFrame's number of rows
+    df['gender'] = y_gender_predicted
+
+    # Save the updated DataFrame back to the CSV file
+    df.to_csv("../data/public-test-data/profile/profile.csv", index=False)
+
 
 ##### Naive Bayes model for gender recognition #####
-
-def predict_age_NB():
+def predict_gender_NB():
     # Reading the data into a dataframe and selecting the columns we need
     df = pd.read_csv("training_list.csv")
     # print(df.shape)
@@ -55,22 +71,33 @@ def predict_age_NB():
 
     # Testing the Naive Bayes model
     X_test = count_vect.transform(data_test['text'])
+    # print(X_test)
     y_test = data_test['gender']
-    y_predicted = clf.predict(X_test)
-    print(len(y_predicted))
-    print(y_predicted)
+    y_test_predicted = clf.predict(X_test)
+    # print(len(y_predicted))
+    # print(y_predicted)
     # Reporting on classification performance
-    print("Accuracy: %.2f" % accuracy_score(y_test,y_predicted))
+    print("Accuracy: %.2f" % accuracy_score(y_test,y_test_predicted))
     classes = ["male","female"]
-    cnf_matrix = confusion_matrix(y_test,y_predicted,labels=classes)
+    cnf_matrix = confusion_matrix(y_test,y_test_predicted,labels=classes)
     print("Confusion matrix:")
     print(cnf_matrix)
 
+    # Predicting the data From Naive Bayes model
+    # Reading data from the public list
+    df2 = pd.read_csv("public_data_list.csv")
+    public_data_Facebook = df2.loc[:,['gender', 'text']]
+    X_public = count_vect.transform(public_data_Facebook['text'])
+    y_gender_predicted = clf.predict(X_public)
+    # print(y_gender_predicted)
+    # print(len(y_gender_predicted))
 
-##### Method to Prepare the traning data by adding the text from text files to the profele.csv #####
+    # return the list of result
+    return y_gender_predicted
 
+##### Method to Prepare the training data by adding the text from text files to the profele.csv #####
 def prepare_training_data():
-    # Arrays for traning data
+    # Arrays for training data
     # Create empty array for userid, age, gender and five persionality - openness(ope), conscientiousness(con)
     # extroversion(ext), agreeableness(agr), emotional stability(neu)
     userIDArr = []
@@ -82,7 +109,7 @@ def prepare_training_data():
     agrArr = []
     neuArr = []
 
-    # Create Emptyarray for userid and content in text file corresponding with userid in the traning data.
+    # Create Emptyarray for userid and content in text file corresponding with userid in the training data.
     textIDArr = []
     textContentArr = []
 
@@ -228,7 +255,7 @@ def prepare_training_data():
         for row in range(row_count):
             training_list[row][8] = text_list[row][1]
         
-    # create the traning list for our model: training_list.csv
+    # create the training list for our model: training_list.csv
     with codecs.open('training_list.csv', 'w', encoding='utf-8', errors='ignore') as csv_output_file:
         write_csv = csv.writer(csv_output_file, delimiter = ',')
         write_csv.writerow(header_training)
@@ -239,8 +266,7 @@ def prepare_training_data():
     contents.close()
     csv_output_file.close()
 
-##### Method to Prepare the traning data by adding the text from text files to the profele.csv #####
-
+##### Method to Prepare the public data by adding the text from text files to the profele.csv #####
 def prepare_public_data():
     # Arrays for data we want to predict
     # Create empty array for userid, age, gender and five persionality - openness(ope), conscientiousness(con)
@@ -254,7 +280,7 @@ def prepare_public_data():
     agrArr = []
     neuArr = []
 
-    # Create Emptyarray for userid and content in text file corresponding with userid in the traning data.
+    # Create Emptyarray for userid and content in text file corresponding with userid in the training data.
     textIDArr = []
     textContentArr = []
 
@@ -374,8 +400,6 @@ def prepare_public_data():
             text_list[row][0] = textIDArr[row]
             text_list[row][1] = textContentArr[row]
 
-        print(text_list)
-
         # Compare user ID in training_list and user ID in text_list
         public_data_list.sort(key=lambda elem: (str(elem[0]) if isinstance(elem[0], int) else elem[0]))
         text_list.sort(key=lambda elem: (str(elem[0]) if isinstance(elem[0], int) else elem[0]))
@@ -383,7 +407,7 @@ def prepare_public_data():
         for row in range(row_count):
             public_data_list[row][8] = text_list[row][1]
         
-    # create the traning list for our model: training_list.csv
+    # create the training list for our model: training_list.csv
     with codecs.open('public_data_list.csv', 'w', encoding='utf-8', errors='ignore') as csv_output_file:
         write_csv = csv.writer(csv_output_file, delimiter = ',')
         write_csv.writerow(header_table)
