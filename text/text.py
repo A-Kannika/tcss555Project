@@ -34,14 +34,27 @@ def write_predicted_to_table():
     # print(len(y_gender_predicted))
 
     # Load the profile.csv under data/public-test-data/profile/ file into a DataFrame
-    df = pd.read_csv("../data/public-test-data/profile/profile.csv")
+    # df = pd.read_csv("../data/public-test-data/profile/profile.csv")
 
     # Add new data to a specific column, ensuring the length matches the DataFrame's number of rows
-    df['gender'] = y_gender_predicted
+    # df['gender'] = y_gender_predicted
 
     # Save the updated DataFrame back to the CSV file
-    df.to_csv("../data/public-test-data/profile/profile.csv", index=False)
+    # df.to_csv("../data/public-test-data/profile/profile.csv", index=False)
+    file_path = "../data/public-test-data/profile/profile.csv"
+    with open(file_path, mode='r', newline='') as file:
+        reader = csv.reader(file)
+        rows = list(reader)  # Convert reader to a list of rows
+        print(rows)
 
+    header = rows[0]
+    for i, row in enumerate(rows[1:], start=0):
+        row[3] = y_gender_predicted[i]
+    
+    out_path = "../data/public-test-data/profile/profile_predict.csv"
+    with open(out_path, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(rows)
 
 ##### Naive Bayes model for gender recognition #####
 def predict_gender_NB():
